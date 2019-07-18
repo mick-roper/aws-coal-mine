@@ -17,8 +17,7 @@ export class FargateStack extends cdk.Stack {
       desiredCount: 1,
       image: ecs.ContainerImage.fromRegistry("chaosd/control-plane"),
       memoryLimitMiB: 1024,
-      publicLoadBalancer: true,
-      containerPort: Math.max(1024, Math.floor(Math.random() * 65500))
+      publicLoadBalancer: true
     })
   }
 }
