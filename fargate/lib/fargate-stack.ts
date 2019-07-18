@@ -22,7 +22,7 @@ export class FargateStack extends cdk.Stack {
 
     const service = new ecs_patterns.LoadBalancedFargateService(this, "some-fargate-service", {
       cluster,
-      cpu: 512,
+      cpu: 256,
       desiredCount: 1,
       image: ecs.ContainerImage.fromRegistry("chaosd/control-plane"),
       memoryLimitMiB: 512,
