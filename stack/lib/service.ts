@@ -14,7 +14,15 @@ export interface ChaosdServiceStackProps extends cdk.StackProps {
   image: string
 }
 
+export interface ServiceLoadBalancer {
+  dnsName: string,
+  hostedZoneId: string,
+  listenerArn: string
+}
+
 export class ChaosdServiceStack extends cdk.Stack {
+  private readonly loadbalancer: ServiceLoadBalancer
+
   constructor(scope: cdk.Construct, name: string, props: ChaosdServiceStackProps) {
     super(scope, name, props)
 
@@ -30,5 +38,11 @@ export class ChaosdServiceStack extends cdk.Stack {
         PORT: `${port}`
       }
     })
+
+    this.loadbalancer = {
+      dnsName: service.loadBalancer.loadBalancerDnsName,
+      hostedZoneId: service.loadBalancer.loadBalancerCanonicalHostedZoneId,
+      listenerArn: service.listener.listenerArn
+    }
   }
 }
