@@ -13,9 +13,6 @@ const props: cdk.StackProps = {
   }
 }
 
-const rootDomainName = 'kotic.io'
-const controlPlaneDomainName = `control.${rootDomainName}`
-
 const app = new cdk.App();
 const sharedStack = new SharedStack(app, 'shared-stuff', props)
 const chaosdServiceStackv0_1_34 = new ChaosdServiceStack(app, 
@@ -26,4 +23,13 @@ const chaosdServiceStackv0_1_34 = new ChaosdServiceStack(app,
     image: 'chaosd/control-plane:0.1.34'
   })
 
+const chaosdServiceStackv0_1_35 = new ChaosdServiceStack(app, 
+  'chaosd-service-v1', 
+  { 
+    ...props, 
+    cluster: sharedStack.cluster, 
+    image: 'chaosd/control-plane:0.1.35'
+  })
+
 chaosdServiceStackv0_1_34.addDependency(sharedStack, 'the root stack')
+chaosdServiceStackv0_1_35.addDependency(sharedStack, 'the root stack')
