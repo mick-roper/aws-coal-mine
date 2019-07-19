@@ -16,7 +16,7 @@ const props: cdk.StackProps = {
 const app = new cdk.App();
 const sharedStack = new SharedStack(app, 'shared-stuff', props)
 const chaosdServiceStackv0_1_34 = new ChaosdServiceStack(app, 
-  'chaosd-service-v1', 
+  'chaosd-service-0-1-34', 
   { 
     ...props, 
     cluster: sharedStack.cluster, 
@@ -24,7 +24,7 @@ const chaosdServiceStackv0_1_34 = new ChaosdServiceStack(app,
   })
 
 const chaosdServiceStackv0_1_35 = new ChaosdServiceStack(app, 
-  'chaosd-service-v1', 
+  'chaosd-service-0-1-35', 
   { 
     ...props, 
     cluster: sharedStack.cluster, 
