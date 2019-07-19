@@ -10,7 +10,7 @@ export class SharedStack extends cdk.Stack {
 
     const vpc = new ec2.Vpc(this, 'the VPC', {
       maxAzs: 3,
-      cidr: '10.0.0.0/12',
+      cidr: '10.0.0.0/16',
       subnetConfiguration: [
         { 
           cidrMask: 20,
