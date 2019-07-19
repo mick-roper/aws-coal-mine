@@ -1,7 +1,6 @@
 import cdk = require('@aws-cdk/core');
 import ec2 = require('@aws-cdk/aws-ec2')
 import ecs = require('@aws-cdk/aws-ecs')
-import { Secret } from '@aws-cdk/aws-secretsmanager';
 
 export class NetworkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {

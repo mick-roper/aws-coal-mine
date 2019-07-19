@@ -4,4 +4,4 @@ import cdk = require('@aws-cdk/core');
 import { NetworkStack } from '../lib/network-stack';
 
 const app = new cdk.App();
-new NetworkStack(app, 'NetworkStack');
+const networkStack = new NetworkStack(app, 'NetworkStack');
