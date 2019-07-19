@@ -17,7 +17,7 @@ export class ChaosdServiceStack extends cdk.Stack {
       memoryLimitMiB: 512,
       serviceName: 'chaosd-control-plane',
       publicLoadBalancer: true,
-      desiredCount: 3,
+      desiredCount: 1,
     })
   }
 }
