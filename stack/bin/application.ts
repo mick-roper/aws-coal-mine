@@ -2,7 +2,7 @@
 import 'source-map-support/register';
 import cdk = require('@aws-cdk/core');
 import { SharedStack } from '../lib/common'
-import { ChaosdServiceStack } from '../lib/fargate-service'
+import { ChaosdServiceStack } from '../lib/service'
 
 const props: cdk.StackProps = {
   env: {
