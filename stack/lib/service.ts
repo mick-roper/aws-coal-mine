@@ -13,7 +13,7 @@ const getRandomPort = () => {
 export interface ChaosdServiceStackProps extends cdk.StackProps {
   cluster: ecs.ICluster,
   domain: {
-    name: string,
+    rootDomainName: string,
     zoneId: string
   }
 }
@@ -24,6 +24,17 @@ export class ChaosdServiceStack extends cdk.Stack {
 
     const port = getRandomPort()
 
+    const r53Zone = route53
+      .HostedZone
+      .fromHostedZoneAttributes(this, 
+        'r53-zone', 
+        { 
+          hostedZoneId: props.domain.zoneId, 
+          zoneName: props.domain.rootDomainName 
+        })
+
+    const domainName = `controlplane.${props.domain.rootDomainName}`
+
     new ecsPatterns.LoadBalancedFargateService(this, 'chaosd-control-plane', {
       cluster: props.cluster,
       image: ecs.ContainerImage.fromRegistry('chaosd/control-plane'),
@@ -32,8 +43,8 @@ export class ChaosdServiceStack extends cdk.Stack {
       serviceName: 'chaosd-control-plane',
       publicLoadBalancer: true,
       desiredCount: 1,
-      domainName: props.domain.name,
-      domainZone: route53.HostedZone.fromHostedZoneId(this, 'zone', props.domain.zoneId),
+      domainName,
+      domainZone: r53Zone,
       containerPort: port,
       environment: {
         PORT: `${port}`

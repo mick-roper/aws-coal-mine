@@ -21,7 +21,7 @@ const chaosdServiceStackv1 = new ChaosdServiceStack(app,
     ...props, 
     cluster: sharedStack.cluster,
     domain: {
-      name: 'controlplane.kotic.com',
+      rootDomainName: 'kotic.com',
       zoneId: 'Z3BHVK8AFSOXLX'
     }
   }
