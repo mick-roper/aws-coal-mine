@@ -1,8 +1,6 @@
 import cdk = require('@aws-cdk/core')
 import ecs = require('@aws-cdk/aws-ecs')
 import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
-import certificatemanager = require('@aws-cdk/aws-certificatemanager')
-import route53 = require('@aws-cdk/aws-route53')
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -12,46 +10,38 @@ const getRandomPort = () => {
 
 export interface ChaosdServiceStackProps extends cdk.StackProps {
   cluster: ecs.ICluster,
-  domain: {
-    rootDomainName: string,
-    zoneId: string
-  },
-  certificateArn: string
+  image: string
+}
+
+export interface IServiceLoadBalancer {
+  dnsName: string,
+  hostedZoneId: string,
+  arn: string
 }
 
 export class ChaosdServiceStack extends cdk.Stack {
+  private readonly loadbalancer: IServiceLoadBalancer
+
   constructor(scope: cdk.Construct, name: string, props: ChaosdServiceStackProps) {
     super(scope, name, props)
 
     const port = getRandomPort()
 
-    const r53Zone = route53
-      .HostedZone
-      .fromHostedZoneAttributes(this, 
-        'r53-zone', 
-        { 
-          hostedZoneId: props.domain.zoneId, 
-          zoneName: props.domain.rootDomainName 
-        })
-
-    const domainName = `controlplane.${props.domain.rootDomainName}`
-
-    const certificate = certificatemanager.Certificate.fromCertificateArn(this, 'cert', props.certificateArn)
-
-    new ecsPatterns.LoadBalancedFargateService(this, 'chaosd-control-plane', {
+    const service = new ecsPatterns.LoadBalancedFargateService(this, "chaosd-service", {
       cluster: props.cluster,
-      image: ecs.ContainerImage.fromRegistry('chaosd/control-plane'),
-      cpu: 256,
+      image: ecs.ContainerImage.fromRegistry(props.image),
       memoryLimitMiB: 512,
-      publicLoadBalancer: true,
-      desiredCount: 1,
-      certificate,
-      domainName,
-      domainZone: r53Zone,
+      cpu: 256,
       containerPort: port,
       environment: {
         PORT: `${port}`
       }
     })
+
+    this.loadbalancer = {
+      dnsName: service.loadBalancer.loadBalancerDnsName,
+      hostedZoneId: service.loadBalancer.loadBalancerArn,
+      arn: service.loadBalancer.loadBalancerArn
+    }
   }
 }
