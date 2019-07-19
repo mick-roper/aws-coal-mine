@@ -3,6 +3,12 @@ import ec2 = require('@aws-cdk/aws-ec2')
 import ecs = require('@aws-cdk/aws-ecs')
 
 export class NetworkStack extends cdk.Stack {
+  private _cluster: ecs.Cluster
+  public get cluster(): ecs.Cluster {
+    return this._cluster
+  }
+  
+
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -31,6 +37,6 @@ export class NetworkStack extends cdk.Stack {
       },
     })
 
-    new ecs.Cluster(this, 'fargate', { vpc })
+    this._cluster = new ecs.Cluster(this, 'fargate', { vpc })
   }
 }
