@@ -6,7 +6,6 @@ import { ChaosdServiceStack } from '../lib/fargate-service'
 
 const props: cdk.StackProps = {
   env: {
-    account: '',
     region: 'eu-west-1'
   },
   tags: {
