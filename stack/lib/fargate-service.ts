@@ -27,6 +27,8 @@ export class ChaosdServiceStack extends cdk.Stack {
       image: ecs.ContainerImage.fromRegistry(props.image || 'chaosd/control-plane'),
       cpu: 256,
       memoryLimitMiB: 256,
+      serviceName: 'chaosd-control-plane',
+      publicLoadBalancer: true,
     })
 
     this._loadBalancer = {
