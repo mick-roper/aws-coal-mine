@@ -27,7 +27,7 @@ export class SharedStack extends cdk.Stack {
       natGatewaySubnets: {
         onePerAz: true,
         subnetType: ec2.SubnetType.PUBLIC
-      }
+      },
     })
 
     this.cluster = new ecs.Cluster(this, 'ballpit', { vpc })

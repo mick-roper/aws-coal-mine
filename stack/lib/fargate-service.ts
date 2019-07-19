@@ -18,6 +18,9 @@ export class ChaosdServiceStack extends cdk.Stack {
       serviceName: 'chaosd-control-plane',
       publicLoadBalancer: true,
       desiredCount: 1,
+      environment: {
+        PORT: '80'
+      }
     })
   }
 }
