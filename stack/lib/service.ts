@@ -1,6 +1,7 @@
 import cdk = require('@aws-cdk/core')
 import ecs = require('@aws-cdk/aws-ecs')
 import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
+import elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2')
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -13,15 +14,7 @@ export interface ChaosdServiceStackProps extends cdk.StackProps {
   image: string
 }
 
-export interface IServiceLoadBalancer {
-  dnsName: string,
-  hostedZoneId: string,
-  arn: string
-}
-
 export class ChaosdServiceStack extends cdk.Stack {
-  private readonly loadbalancer: IServiceLoadBalancer
-
   constructor(scope: cdk.Construct, name: string, props: ChaosdServiceStackProps) {
     super(scope, name, props)
 
@@ -37,11 +30,5 @@ export class ChaosdServiceStack extends cdk.Stack {
         PORT: `${port}`
       }
     })
-
-    this.loadbalancer = {
-      dnsName: service.loadBalancer.loadBalancerDnsName,
-      hostedZoneId: service.loadBalancer.loadBalancerArn,
-      arn: service.loadBalancer.loadBalancerArn
-    }
   }
 }
