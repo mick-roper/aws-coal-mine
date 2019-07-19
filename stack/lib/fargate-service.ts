@@ -4,7 +4,7 @@ import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
 
 export interface ChaosdServiceStackProps extends cdk.StackProps {
   cluster: ecs.ICluster,
-  image: string | undefined
+  image?: string
 }
 
 export interface ServiceLoadbalancer {
