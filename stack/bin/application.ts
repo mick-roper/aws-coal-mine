@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import cdk = require('@aws-cdk/core');
-import { NetworkStack } from '../lib/network-stack';
-import { EcsClusterStack } from '../lib/ecs-cluster-stack'
+import { SharedStack } from '../lib/common'
 import { ChaosdServiceStack } from '../lib/fargate-service'
 
 const props: cdk.StackProps = {
@@ -16,9 +15,7 @@ const props: cdk.StackProps = {
 }
 
 const app = new cdk.App();
-const networkStack = new NetworkStack(app, 'chaosd-network', props);
-const clusterStack = new EcsClusterStack(app, 'chaosd-cluster', { ...props, vpc: networkStack.vpc })
-const chaosdServiceStackv1 = new ChaosdServiceStack(app, 'chaosd-service-v1', { ...props, cluster: clusterStack.cluster })
+const sharedStack = new SharedStack(app, 'the shared stack', props)
+const chaosdServiceStackv1 = new ChaosdServiceStack(app, 'chaosd-service-v1', { ...props, cluster: sharedStack.cluster })
 
-chaosdServiceStackv1.addDependency(clusterStack, 'the ecs cluster the app runs on')
-clusterStack.addDependency(networkStack, 'the network the cluster runs on')
+chaosdServiceStackv1.addDependency(sharedStack, 'the root stack')
