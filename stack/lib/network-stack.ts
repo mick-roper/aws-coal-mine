@@ -3,16 +3,15 @@ import ec2 = require('@aws-cdk/aws-ec2')
 import ecs = require('@aws-cdk/aws-ecs')
 
 export class NetworkStack extends cdk.Stack {
-  private _cluster: ecs.Cluster
-  public get cluster(): ecs.Cluster {
-    return this._cluster
+  private _vpc: ec2.IVpc
+  public get vpc(): ec2.IVpc {
+    return this._vpc
   }
-  
 
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = new ec2.Vpc(this, 'application vpc', {
+    this._vpc = new ec2.Vpc(this, 'application vpc', {
       cidr: '10.0.0.0/16',
       maxAzs: 3,
       subnetConfiguration: [
@@ -36,7 +35,5 @@ export class NetworkStack extends cdk.Stack {
         subnetName: 'public' 
       },
     })
-
-    this._cluster = new ecs.Cluster(this, 'fargate', { vpc })
   }
 }
