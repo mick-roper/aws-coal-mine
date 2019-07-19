@@ -1,6 +1,8 @@
 import cdk = require('@aws-cdk/core')
 import ecs = require('@aws-cdk/aws-ecs')
 import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
+import certificatemanager = require('@aws-cdk/aws-certificatemanager')
+import route53 = require('@aws-cdk/aws-route53')
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -9,7 +11,11 @@ const getRandomPort = () => {
 }
 
 export interface ChaosdServiceStackProps extends cdk.StackProps {
-  cluster: ecs.ICluster
+  cluster: ecs.ICluster,
+  domain: {
+    name: string,
+    zoneId: string
+  }
 }
 
 export class ChaosdServiceStack extends cdk.Stack {
@@ -26,6 +32,8 @@ export class ChaosdServiceStack extends cdk.Stack {
       serviceName: 'chaosd-control-plane',
       publicLoadBalancer: true,
       desiredCount: 1,
+      domainName: props.domain.name,
+      domainZone: route53.HostedZone.fromHostedZoneId(this, 'zone', props.domain.zoneId),
       containerPort: port,
       environment: {
         PORT: `${port}`
