@@ -23,7 +23,8 @@ const chaosdServiceStackv1 = new ChaosdServiceStack(app,
     domain: {
       rootDomainName: 'kotic.io',
       zoneId: 'Z3BHVK8AFSOXLX'
-    }
+    },
+    certificateArn: 'arn:aws:acm:eu-west-1:317464599277:certificate/e935b7fa-60b0-4354-93ee-29978d6baa38'
   }
 )
 

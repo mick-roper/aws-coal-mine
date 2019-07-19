@@ -15,7 +15,8 @@ export interface ChaosdServiceStackProps extends cdk.StackProps {
   domain: {
     rootDomainName: string,
     zoneId: string
-  }
+  },
+  certificateArn: string
 }
 
 export class ChaosdServiceStack extends cdk.Stack {
@@ -35,6 +36,8 @@ export class ChaosdServiceStack extends cdk.Stack {
 
     const domainName = `controlplane.${props.domain.rootDomainName}`
 
+    const certificate = certificatemanager.Certificate.fromCertificateArn(this, 'cert', props.certificateArn)
+
     new ecsPatterns.LoadBalancedFargateService(this, 'chaosd-control-plane', {
       cluster: props.cluster,
       image: ecs.ContainerImage.fromRegistry('chaosd/control-plane'),
@@ -43,6 +46,7 @@ export class ChaosdServiceStack extends cdk.Stack {
       serviceName: 'chaosd-control-plane',
       publicLoadBalancer: true,
       desiredCount: 1,
+      certificate,
       domainName,
       domainZone: r53Zone,
       containerPort: port,
