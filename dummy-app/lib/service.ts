@@ -32,20 +32,24 @@ export class ChaosdServiceStack extends Stack {
     })
 
     const createSdkCall: (subject: string, loadBalancer: LoadBalancedServiceBase) => AwsSdkCall = (subject: string, ecsService: LoadBalancedServiceBase) => ({
-      service: 'SNS',
-      action: 'publish',
+      service: 'SQS',
+      action: 'sendMessage',
       physicalResourceId: props.stackName,
       parameters: {
-        TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
-        Subject: subject,
-        serviceLoadBalancer: {
-          dnsName: ecsService.loadBalancer.loadBalancerDnsName,
-          zoneId: ecsService.loadBalancer.loadBalancerCanonicalHostedZoneId
-        },
-        publicDomain: {
-          route53ZoneId: 'Z3BHVK8AFSOXLX',
-          dnsName: 'control-plane.kotic.io'
-        }
+        QueueUrl: 'https://sqs.eu-west-1.amazonaws.com/317464599277/canary-traffic-changes',
+        DelaySeconds: 0,
+        MessageBody: JSON.stringify({
+          subject: subject,
+          stack: props.stackName,
+          serviceLoadBalancer: {
+            dnsName: ecsService.loadBalancer.loadBalancerDnsName,
+            zoneId: ecsService.loadBalancer.loadBalancerCanonicalHostedZoneId
+          },
+          publicDomain: {
+            route53ZoneId: 'Z3BHVK8AFSOXLX',
+            dnsName: 'control-plane.kotic.io'
+          }
+        })
       }
     })
 
