@@ -15,7 +15,7 @@ export class CanaryStack extends cdk.Stack {
     const fn = new lambda.Function(this, 'canary-function', {
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.entryPoint',
-      code: lambda.Code.asset('../canary-fn')
+      code: lambda.Code.asset('./canary-fn')
     })
 
     fn.addEventSource(new SnsEventSource(topic))    
