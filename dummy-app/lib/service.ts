@@ -1,7 +1,7 @@
-import cdk = require('@aws-cdk/core')
+import  cdk = require('@aws-cdk/core')
 import ecs = require('@aws-cdk/aws-ecs')
 import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
-import elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2')
+import customResources = require('@aws-cdk/custom-resources')
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -39,10 +39,19 @@ export class ChaosdServiceStack extends cdk.Stack {
       }
     })
 
-    this.loadbalancer = {
-      dnsName: service.loadBalancer.loadBalancerDnsName,
-      hostedZoneId: service.loadBalancer.loadBalancerCanonicalHostedZoneId,
-      listenerArn: service.listener.listenerArn
-    }
+    const canaryTopic = new customResources.AwsCustomResource(this, 'sns-topic', {
+      onCreate: {
+        service: 'SNS',
+        action: 'publish',
+        parameters: {
+          TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
+          Message: JSON.stringify({
+            message: 'creating stack'
+          })
+        }
+      }
+    })
+
+    canaryTopic.getData('helloworld')
   }
 }
