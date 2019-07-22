@@ -6,6 +6,7 @@ import { ChaosdServiceStack } from '../lib/service'
 
 const props: cdk.StackProps = {
   env: {
+    account: '317464599277',
     region: 'eu-west-1'
   },
   tags: {

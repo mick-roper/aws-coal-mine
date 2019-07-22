@@ -2,6 +2,7 @@ import  cdk = require('@aws-cdk/core')
 import ecs = require('@aws-cdk/aws-ecs')
 import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
 import customResources = require('@aws-cdk/custom-resources')
+import { stringToCloudFormation } from '@aws-cdk/core';
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -14,15 +15,7 @@ export interface ChaosdServiceStackProps extends cdk.StackProps {
   image: string
 }
 
-export interface ServiceLoadBalancer {
-  dnsName: string,
-  hostedZoneId: string,
-  listenerArn: string
-}
-
 export class ChaosdServiceStack extends cdk.Stack {
-  private readonly loadbalancer: ServiceLoadBalancer
-
   constructor(scope: cdk.Construct, name: string, props: ChaosdServiceStackProps) {
     super(scope, name, props)
 
@@ -39,16 +32,27 @@ export class ChaosdServiceStack extends cdk.Stack {
       }
     })
 
-    const canaryTopic = new customResources.AwsCustomResource(this, 'sns-topic', {
+    const canaryTopic = new customResources.AwsCustomResource(this, 'canary-trigger-topic', {
       onCreate: {
         service: 'SNS',
         action: 'publish',
         parameters: {
           TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
           Message: JSON.stringify({
-            message: 'creating stack'
+            type: 'STACK_CREATED',
+            props: {
+              serviceLoadBalancer: {
+                dnsName: service.loadBalancer.loadBalancerDnsName,
+                zoneId: service.loadBalancer.loadBalancerCanonicalHostedZoneId
+              },
+              publidDomain: {
+                route53ZoneId: 'Z3BHVK8AFSOXLX',
+                dnsName: 'control-plane.kotic.io'
+              }
+            }
           })
-        }
+        },
+        physicalResourceId: service.service.serviceName
       }
     })
 
