@@ -34,13 +34,13 @@ export class ChaosdServiceStack extends Stack {
     const createSdkCall: (subject: string, loadBalancer: LoadBalancedServiceBase) => AwsSdkCall = (subject: string, ecsService: LoadBalancedServiceBase) => ({
       service: 'SQS',
       action: 'sendMessage',
-      physicalResourceId: props.stackName,
+      physicalResourceId: ecsService.loadBalancer.stack.stackName,
       parameters: {
         QueueUrl: 'https://sqs.eu-west-1.amazonaws.com/317464599277/canary-traffic-changes',
         DelaySeconds: 0,
         MessageBody: JSON.stringify({
           subject: subject,
-          stack: props.stackName,
+          stack: ecsService.loadBalancer.stack.stackName,
           serviceLoadBalancer: {
             dnsName: ecsService.loadBalancer.loadBalancerDnsName,
             zoneId: ecsService.loadBalancer.loadBalancerCanonicalHostedZoneId
