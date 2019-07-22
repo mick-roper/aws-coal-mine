@@ -1,0 +1,22 @@
+{
+  "name": "canary",
+  "version": "0.1.0",
+  "bin": {
+    "canary": "bin/canary.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@types/node": "12.6.8",
+    "typescript": "^3.5.3",
+    "ts-node": "^8.3.0",
+    "aws-cdk": "^1.1.0"
+  },
+  "dependencies": {
+    "@aws-cdk/core": "^1.1.0",
+    "source-map-support": "^0.5.12"
+  }
+}
