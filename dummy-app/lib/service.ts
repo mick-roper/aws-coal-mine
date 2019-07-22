@@ -1,8 +1,7 @@
-import  cdk = require('@aws-cdk/core')
-import ecs = require('@aws-cdk/aws-ecs')
-import ecsPatterns = require('@aws-cdk/aws-ecs-patterns')
-import customResources = require('@aws-cdk/custom-resources')
-import { stringToCloudFormation } from '@aws-cdk/core';
+import { Stack, StackProps, Construct } from '@aws-cdk/core'
+import { ICluster, ContainerImage } from '@aws-cdk/aws-ecs'
+import { LoadBalancedFargateService, LoadBalancedServiceBase } from '@aws-cdk/aws-ecs-patterns'
+import { AwsCustomResource, AwsSdkCall } from '@aws-cdk/custom-resources'
 
 const getRandomPort = () => {
   const min = 20000, max = 65500
@@ -10,20 +9,20 @@ const getRandomPort = () => {
   return Math.floor((Math.random() * (max - min)) + min)
 }
 
-export interface ChaosdServiceStackProps extends cdk.StackProps {
-  cluster: ecs.ICluster,
+export interface ChaosdServiceStackProps extends StackProps {
+  cluster: ICluster,
   image: string
 }
 
-export class ChaosdServiceStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, name: string, props: ChaosdServiceStackProps) {
+export class ChaosdServiceStack extends Stack {
+  constructor(scope: Construct, name: string, props: ChaosdServiceStackProps) {
     super(scope, name, props)
 
     const port = getRandomPort()
 
-    const service = new ecsPatterns.LoadBalancedFargateService(this, "chaosd-service", {
+    const service = new LoadBalancedFargateService(this, "chaosd-service", {
       cluster: props.cluster,
-      image: ecs.ContainerImage.fromRegistry(props.image),
+      image: ContainerImage.fromRegistry(props.image),
       memoryLimitMiB: 512,
       cpu: 256,
       containerPort: port,
@@ -32,29 +31,28 @@ export class ChaosdServiceStack extends cdk.Stack {
       }
     })
 
-    const canaryTopic = new customResources.AwsCustomResource(this, 'canary-trigger-topic', {
-      onCreate: {
-        service: 'SNS',
-        action: 'publish',
-        parameters: {
-          TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
-          Subject: 'STACK_CREATED',
-          Message: JSON.stringify({
-            props: {
-              stackName: props.stackName,
-              serviceLoadBalancer: {
-                dnsName: service.loadBalancer.loadBalancerDnsName,
-                zoneId: service.loadBalancer.loadBalancerCanonicalHostedZoneId
-              },
-              publidDomain: {
-                route53ZoneId: 'Z3BHVK8AFSOXLX',
-                dnsName: 'control-plane.kotic.io'
-              }
-            }
-          })
+    const createSdkCall: (subject: string, loadBalancer: LoadBalancedServiceBase) => AwsSdkCall = (subject: string, ecsService: LoadBalancedServiceBase) => ({
+      service: 'SNS',
+      action: 'publish',
+      physicalResourceId: props.stackName,
+      parameters: {
+        TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
+        Subject: subject,
+        serviceLoadBalancer: {
+          dnsName: ecsService.loadBalancer.loadBalancerDnsName,
+          zoneId: ecsService.loadBalancer.loadBalancerCanonicalHostedZoneId
         },
-        physicalResourceId: service.service.serviceName
+        publicDomain: {
+          route53ZoneId: 'Z3BHVK8AFSOXLX',
+          dnsName: 'control-plane.kotic.io'
+        }
       }
+    })
+
+    const canaryTopic = new AwsCustomResource(this, 'canary-trigger-topic', {
+      onCreate: createSdkCall('STACK_CREATED', service),
+      onUpdate: createSdkCall('STACK_UPDATED', service),
+      onDelete: createSdkCall('STACK_DELETED', service)
     })
 
     canaryTopic.getData('helloworld')
