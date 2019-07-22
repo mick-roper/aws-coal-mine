@@ -38,9 +38,10 @@ export class ChaosdServiceStack extends cdk.Stack {
         action: 'publish',
         parameters: {
           TopicArn: 'arn:aws:sns:eu-west-1:317464599277:canary-trigger',
+          Subject: 'STACK_CREATED',
           Message: JSON.stringify({
-            type: 'STACK_CREATED',
             props: {
+              stackName: props.stackName,
               serviceLoadBalancer: {
                 dnsName: service.loadBalancer.loadBalancerDnsName,
                 zoneId: service.loadBalancer.loadBalancerCanonicalHostedZoneId
