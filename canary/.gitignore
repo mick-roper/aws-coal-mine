@@ -5,3 +5,6 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# explicit include lambda code
+!canary-fn/*
