@@ -9,8 +9,7 @@ export class CanaryStack extends cdk.Stack {
 
     const queue = new Queue(this, 'canary-traffic-updates', {
       queueName: 'canary-traffic-changes',
-      retentionPeriod: cdk.Duration.days(1),
-      deliveryDelay: cdk.Duration.minutes(1)
+      retentionPeriod: cdk.Duration.days(1)
     })
 
     const fn = new lambda.Function(this, 'canary-function', {
